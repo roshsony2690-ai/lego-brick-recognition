@@ -26,48 +26,65 @@ import requests
 
 # ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
 import requests
+
+# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
+import h5py
+
 MODEL_PATH = 'models/lego_model_final.h5'
 
 def download_model():
     """Download model from Google Drive if not exists"""
     if os.path.exists(MODEL_PATH):
-        return
+        # Check if file is valid
+        try:
+            h5py.File(MODEL_PATH, 'r')
+            return
+        except:
+            st.warning("⚠️ Existing model file is corrupted. Re-downloading...")
+            os.remove(MODEL_PATH)
     
     st.info("📥 Downloading AI model from Google Drive... This may take 3-5 minutes.")
     
     # Your File ID
     file_id = "1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
-    url = f"https://drive.google.com/uc?export=download&id=1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
     
-    try:
-        # Create models folder
-        os.makedirs('models', exist_ok=True)
-        
-        # Download the file
-        response = requests.get(url, stream=True)
-        
-        # Get file size for progress bar
-        total_size = int(response.headers.get('content-length', 0))
-        
-        # Download with progress
-        with open(MODEL_PATH, 'wb') as f:
-            progress_bar = st.progress(0)
-            downloaded = 0
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    downloaded += len(chunk)
-                    if total_size > 0:
-                        progress_bar.progress(min(downloaded / total_size, 1.0))
-        
-        st.success("✅ Model downloaded successfully!")
-        
-    except Exception as e:
-        st.error(f"❌ Failed to download model: {e}")
-        st.info("💡 Please check your internet connection")
-
-# Download model BEFORE loading it
-download_model()
+    # Method 1: Direct download
+    url1 = f"https://drive.google.com/uc?export=download&id={file_id}"
+    url2 = f"https://drive.google.com/uc?id={file_id}&export=download"
+    
+    for url in [url1, url2]:
+        try:
+            os.makedirs('models', exist_ok=True)
+            
+            # Download with progress
+            response = requests.get(url, stream=True)
+            
+            # Check if we got a valid file (not HTML)
+            content_type = response.headers.get('content-type', '')
+            if 'text/html' in content_type:
+                continue  # Try next URL
+            
+            total_size = int(response.headers.get('content-length', 0))
+            
+            with open(MODEL_PATH, 'wb') as f:
+                progress_bar = st.progress(0)
+                downloaded = 0
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        downloaded += len(chunk)
+                        if total_size > 0:
+                            progress_bar.progress(min(downloaded / total_size, 1.0))
+            
+            # Verify the file
+            h5py.File(MODEL_PATH, 'r')
+            st.success("✅ Model downloaded successfully!")
+            return
+            
+        except Exception as e:
+            continue
+    
+    st.error("❌ Failed to download model. Please try again.")
 # ====================================================
 # ==================== PAGE CONFIG ====================
 st.set_page_config(
