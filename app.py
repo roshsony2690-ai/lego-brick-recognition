@@ -24,6 +24,8 @@ from src.utils import (
 # ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
 import requests
 
+# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
+import requests
 MODEL_PATH = 'models/lego_model_final.h5'
 
 def download_model():
@@ -35,7 +37,7 @@ def download_model():
     
     # Your File ID
     file_id = "1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
-    url = f"https://drive.google.com/file/d/1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX/view?usp=sharing"
+    url = f"https://drive.google.com/uc?export=download&id=1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
     
     try:
         # Create models folder
