@@ -38,9 +38,9 @@ DATASET_PATH = 'dataset'
 TEMPERATURE = 1.5
 # ================================================
 
-# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
+# ==================== DOWNLOAD MODEL FROM HUGGING FACE ====================
 def download_model():
-    """Download model from Google Drive if not exists"""
+    """Download model from Hugging Face if not exists"""
     if os.path.exists(MODEL_PATH):
         # Check if file is valid
         try:
@@ -50,43 +50,41 @@ def download_model():
             st.warning("⚠️ Existing model file is corrupted. Re-downloading...")
             os.remove(MODEL_PATH)
     
-    st.info("📥 Downloading AI model from Google Drive... This may take 3-5 minutes.")
+    st.info("📥 Downloading AI model from Hugging Face... This may take 3-5 minutes.")
     
-   # Hugging Face download URL
+    # Hugging Face download URL
     url = "https://huggingface.co/spaces/Rosh2690/lego-model/resolve/main/lego_model_final.h5"
     
-        try:
-            os.makedirs('models', exist_ok=True)
-            
-            # Download with progress
-            response = requests.get(url, stream=True)
-            
-            # Check if we got a valid file (not HTML)
-            content_type = response.headers.get('content-type', '')
-            if 'text/html' in content_type:
-                continue  # Try next URL
-            
-            total_size = int(response.headers.get('content-length', 0))
-            
-            with open(MODEL_PATH, 'wb') as f:
-                progress_bar = st.progress(0)
-                downloaded = 0
-                for chunk in response.iter_content(chunk_size=8192):
-                    if chunk:
-                        f.write(chunk)
-                        downloaded += len(chunk)
-                        if total_size > 0:
-                            progress_bar.progress(min(downloaded / total_size, 1.0))
-            
-            # Verify the file
-            h5py.File(MODEL_PATH, 'r')
-            st.success("✅ Model downloaded successfully!")
+    try:
+        os.makedirs('models', exist_ok=True)
+        
+        # Download with progress
+        response = requests.get(url, stream=True)
+        
+        # Check if we got a valid file (not HTML)
+        content_type = response.headers.get('content-type', '')
+        if 'text/html' in content_type:
+            st.error("❌ Got HTML instead of model file. Please check the URL.")
             return
-            
-        except Exception as e:
-            continue
-    
-    st.error("❌ Failed to download model. Please try again.")
+        
+        total_size = int(response.headers.get('content-length', 0))
+        
+        with open(MODEL_PATH, 'wb') as f:
+            progress_bar = st.progress(0)
+            downloaded = 0
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress_bar.progress(min(downloaded / total_size, 1.0))
+        
+        # Verify the file
+        h5py.File(MODEL_PATH, 'r')
+        st.success("✅ Model downloaded successfully!")
+        
+    except Exception as e:
+        st.error(f"❌ Failed to download model: {e}")
 # ====================================================
 
 # ==================== CALL DOWNLOAD MODEL ====================
