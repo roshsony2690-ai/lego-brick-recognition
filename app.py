@@ -9,6 +9,8 @@ import glob
 import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
+import requests
+import h5py
 
 # Add src folder to Python path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
@@ -21,17 +23,22 @@ from src.utils import (
     get_top_predictions
 )
 
-# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
-import requests
+# ==================== PAGE CONFIG ====================
+st.set_page_config(
+    page_title="LEGO Brick Recognizer",
+    page_icon="🧱",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
-import requests
-
-# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
-import h5py
-
+# ==================== CONFIG ====================
+IMG_SIZE = (128, 128)
 MODEL_PATH = 'models/lego_model_final.h5'
+DATASET_PATH = 'dataset'
+TEMPERATURE = 1.5
+# ================================================
 
+# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
 def download_model():
     """Download model from Google Drive if not exists"""
     if os.path.exists(MODEL_PATH):
@@ -86,20 +93,9 @@ def download_model():
     
     st.error("❌ Failed to download model. Please try again.")
 # ====================================================
-# ==================== PAGE CONFIG ====================
-st.set_page_config(
-    page_title="LEGO Brick Recognizer",
-    page_icon="🧱",  # Use emoji or URL: "https://www.lego.com/favicon.ico"
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-# ==================== CONFIG ====================
-IMG_SIZE = (128, 128)
-MODEL_PATH = 'models/lego_model_final.h5'
-DATASET_PATH = 'dataset'
-TEMPERATURE = 1.5
-# ================================================
+# ==================== CALL DOWNLOAD MODEL ====================
+download_model()  # ← CRITICAL: This must be called before loading!
 
 # ==================== CUSTOM CSS WITH LEGO BACKGROUND ====================
 st.markdown("""
