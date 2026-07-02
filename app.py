@@ -21,6 +21,52 @@ from src.utils import (
     get_top_predictions
 )
 
+# ==================== DOWNLOAD MODEL FROM GOOGLE DRIVE ====================
+import requests
+
+MODEL_PATH = 'models/lego_model_final.h5'
+
+def download_model():
+    """Download model from Google Drive if not exists"""
+    if os.path.exists(MODEL_PATH):
+        return
+    
+    st.info("📥 Downloading AI model from Google Drive... This may take 3-5 minutes.")
+    
+    # Your File ID
+    file_id = "1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
+    url = f"https://drive.google.com/file/d/1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX/view?usp=sharing"
+    
+    try:
+        # Create models folder
+        os.makedirs('models', exist_ok=True)
+        
+        # Download the file
+        response = requests.get(url, stream=True)
+        
+        # Get file size for progress bar
+        total_size = int(response.headers.get('content-length', 0))
+        
+        # Download with progress
+        with open(MODEL_PATH, 'wb') as f:
+            progress_bar = st.progress(0)
+            downloaded = 0
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress_bar.progress(min(downloaded / total_size, 1.0))
+        
+        st.success("✅ Model downloaded successfully!")
+        
+    except Exception as e:
+        st.error(f"❌ Failed to download model: {e}")
+        st.info("💡 Please check your internet connection")
+
+# Download model BEFORE loading it
+download_model()
+# ====================================================
 # ==================== PAGE CONFIG ====================
 st.set_page_config(
     page_title="LEGO Brick Recognizer",
