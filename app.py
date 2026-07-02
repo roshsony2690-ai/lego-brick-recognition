@@ -52,14 +52,9 @@ def download_model():
     
     st.info("📥 Downloading AI model from Google Drive... This may take 3-5 minutes.")
     
-    # Your File ID
-    file_id = "1hM7JwSTDoVmWRIEflgDh80s-rdpCMrIX"
+   # Hugging Face download URL
+    url = "https://huggingface.co/spaces/Rosh2690/lego-model/resolve/main/lego_model_final.h5"
     
-    # Method 1: Direct download
-    url1 = f"https://drive.google.com/uc?export=download&id={file_id}"
-    url2 = f"https://drive.google.com/uc?id={file_id}&export=download"
-    
-    for url in [url1, url2]:
         try:
             os.makedirs('models', exist_ok=True)
             
